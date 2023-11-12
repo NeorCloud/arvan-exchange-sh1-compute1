@@ -21,3 +21,4 @@ spec:
     - Validate=false
     - Prune=true
     - SelfHeal=true
+    - ServerSideApply=true
