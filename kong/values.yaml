@@ -1,6 +1,6 @@
 issuer:
   create: true
-  name: letsenctypt
+  name: letsencrypt-prd
   # Following values is used only when create is set to true
   email: "alisalmajialisalmaji@gmail.com"
   privateKeySecretRefName: "letsencrypt-prd"
