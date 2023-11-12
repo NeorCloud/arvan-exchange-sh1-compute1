@@ -28,6 +28,8 @@ keycloak:
   ingress:
     enabled: true
     ingressClassName: "kong"
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prd
     hostname: sso.exchange.neor.space
     extraTls:
     - hosts:
