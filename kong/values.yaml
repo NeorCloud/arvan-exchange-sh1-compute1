@@ -168,7 +168,7 @@ kong:
       enabled: true
       hostname: developer.kong.sh1.exchange.neor.space
       path: /
-      tls: bama-cert-2023
+      tls: kong-portal-tls
     type: ClusterIP
   portalapi:
     annotations:
@@ -184,7 +184,7 @@ kong:
       enabled: true
       hostname: developer.kong.sh1.exchange.neor.space
       path: /api
-      tls: bama-cert-2023
+      tls: kong-portalapi-tls
     type: ClusterIP
   postgresql:
     auth:
@@ -205,7 +205,7 @@ kong:
       servicePort: 80
       containerPort: 8080
       # Set a nodePort which is available if service type is NodePort
-      nodePort: 30080
+      nodePort: 31080
       hostPort: 80
     tls:
       # Enable HTTPS listen for the proxy
@@ -213,7 +213,7 @@ kong:
       servicePort: 443
       containerPort: 8443
       # Set a nodePort which is available if service type is NodePort
-      nodePort: 30443
+      nodePort: 31443
       hostPort: 443
   updateStrategy:
     rollingUpdate:
