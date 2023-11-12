@@ -1,0 +1,13 @@
+apiVersion: v2
+name: "keycloak"
+description: "An umbrella chart for the bitnamy/keycloak application"
+type: application
+version: 0.1.0
+appVersion: "21.1.1"
+dependencies:
+  - name: keycloak
+    version: 16.1.5
+    repository: "oci://registry-1.docker.io/bitnamicharts"
+  - name: postgresql
+    repository: oci://registry-1.docker.io/bitnamicharts
+    version: 12.x.x

@@ -1,0 +1,88 @@
+harbor:
+  expose:
+    tls:
+      enabled: true
+      certSource: secret
+      secret:
+        secretName: bama-cert-2023
+    ingress:
+      hosts:
+        core: registry.sh1.exchange.neor.space
+      annotations: {}
+  externalURL: https://registry.sh1.exchange.neor.space
+  persistence:
+    enabled: true
+    persistentVolumeClaim:
+      registry:
+        storageClass: topolvm-provisioner
+        size: 20Gi
+      jobservice:
+        storageClass: topolvm-provisioner
+        size: 1Gi
+      redis:
+        storageClass: topolvm-provisioner
+        size: 1Gi
+      trivy:
+        storageClass: topolvm-provisioner
+        size: 5Gi
+  secretKey: ">{DJu%;4#X@1BUQ0a(1c2wo:p*2{cv9|$_7"
+  proxy:
+    httpProxy: http://msf.alefbyte.com:58889
+    httpsProxy: http://msf.alefbyte.com:58889
+    noProxy: 127.0.0.1,localhost,.local,.internal,.neor.space
+  core:
+    image:
+      repository: docker.io/goharbor/harbor-core
+  jobservice:
+    image:
+      repository: docker.io/goharbor/harbor-jobservice
+    jobLoggers:
+    - stdout
+  portal:
+    image:
+      repository: docker.io/goharbor/harbor-portal
+  registry:
+    registry:
+      image:
+        repository: docker.io/goharbor/registry-photon
+    controller:
+      image:
+        repository: docker.io/goharbor/harbor-registryctl
+  trivy:
+    enabled: true
+    securityCheck: "vuln,config,secret"
+    timeout: 5m0s
+    image:
+      repository: docker.io/goharbor/trivy-adapter-photon
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: 1
+        memory: 1Gi
+  database:
+    type: external
+    external:
+      host: harbor-postgresql
+      port: 5432
+      username: harbor
+      password: 4xCtlPZH9kp3TLjrwg96FSzYhX7yqWpoW3dh
+      coreDatabase: registry
+  redis:
+    internal:
+      image:
+        repository: docker.io/goharbor/redis-photon
+
+postgresql:
+  global:
+    imageRegistry: registry.arico-b2b.com/cache
+    storageClass: "topolvm-provisioner"
+
+  clusterDomain: "k8s.sh1.exchange.neor.space"
+
+  auth:
+    postgresPassword: VPR8ts5dvMYDIyO881e2WaBFJkomF3jd47c0
+    username: harbor
+    password: 4xCtlPZH9kp3TLjrwg96FSzYhX7yqWpoW3dh
+    database: registry

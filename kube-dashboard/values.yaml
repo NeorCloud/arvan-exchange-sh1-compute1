@@ -1,0 +1,130 @@
+kubernetes-dashboard:
+  app:
+    scaling:
+      replicas: 1
+    settings:
+      # Global dashboard settings
+      # Note: Use all or none. Dashboard does not support default value merging currently.
+      global:
+      # Cluster name that appears in the browser window title if it is set
+      clusterName: "bi-bama-cluster"
+      # Max number of items that can be displayed on each list page
+      itemsPerPage: 10
+      # Number of seconds between every auto-refresh of logs
+      logsAutoRefreshTimeInterval: 5
+      # Number of seconds between every auto-refresh of every resource. Set 0 to disable
+      resourceAutoRefreshTimeInterval: 5
+      # Hide all access denied warnings in the notification panel
+      disableAccessDeniedNotifications: false
+      # Pinned CRDs that will be displayed in dashboard's menu
+      pinnedCRDs: []
+      # - kind: customresourcedefinition
+      #  #  Fully qualified name of a CRD
+      #  name: prometheus.monitoring.coreos.com
+      #  #  Display name
+      #  displayName: Prometheus
+      #  #  Is this CRD namespaced?
+      #  namespaced: true
+    ingress:
+      enabled: true
+      hosts:
+      - cluster.k8s.bi.bama.ir
+      ingressClassName: kong
+      pathType: ImplementationSpecific
+      secretName: kubernetes-dashboard-certs
+      issuer:
+        name: letsenctypt-kong-issuer
+        # Scope determines what kind of issuer annotation will be used on ingress resource
+        # - default - adds 'cert-manager.io/issuer'
+        # - cluster - adds 'cert-manager.io/cluster-issuer'
+        scope: cluster
+      annotations: {}
+      paths:
+        web: /
+        api: /api
+
+  # API deployment configuration
+  api:
+    role: api
+    image:
+      repository: docker.io/kubernetesui/dashboard-api
+      tag: v1.0.0
+    containers:
+      resources:
+        requests:
+          cpu: 500m
+          memory: 800Mi
+        limits:
+          cpu: 1
+          memory: 1Gi
+
+  # WEB UI deployment configuration
+  web:
+    role: web
+    image:
+      repository: docker.io/kubernetesui/dashboard-web
+      tag: v1.0.0
+    containers:
+      resources:
+        requests:
+          cpu: 500m
+          memory: 800Mi
+        limits:
+          cpu: 1
+          memory: 1Gi
+
+  ### Metrics Scraper
+  ### Container to scrape, store, and retrieve a window of time from the Metrics Server.
+  ### refs: https://github.com/kubernetes-sigs/dashboard-metrics-scraper
+  metricsScraper:
+    enabled: true
+    role: metrics-scraper
+    image:
+      repository: docker.io/kubernetesui/metrics-scraper
+      tag: v1.0.9
+    containers:
+      resources:
+        requests:
+          cpu: 100m
+          memory: 200Mi
+        limits:
+          cpu: 250m
+          memory: 400Mi
+      livenessProbe:
+        httpGet:
+          scheme: HTTP
+          path: /
+          port: 8000
+        initialDelaySeconds: 30
+        timeoutSeconds: 30
+
+  metrics-server:
+    enabled: true
+    args:
+      - --kubelet-preferred-address-types=InternalIP
+      - --kubelet-insecure-tls
+    image:
+      repository: registry.arico-b2b.com/cache-k8s-io/metrics-server/metrics-server
+
+  cert-manager:
+    enabled: false
+
+  nginx:
+    enabled: false
+
+  extras:
+    # Start in ReadOnly mode.
+    # Specifies whether cluster-wide RBAC resources (ClusterRole, ClusterRolebinding) with read only permissions to all resources listed inside the cluster should be created
+    # Only dashboard-related Secrets and ConfigMaps will still be available for writing.
+    #
+    # The basic idea of the clusterReadOnlyRole
+    # is not to hide all the secrets and sensitive data but more
+    # to avoid accidental changes in the cluster outside the standard CI/CD.
+    #
+    # It is NOT RECOMMENDED to use this version in production.
+    # Instead, you should review the role and remove all potentially sensitive parts such as
+    # access to persistentvolumes, pods/log etc.
+    clusterReadOnlyRole: true
+    # It is possible to add additional rules if read only role is enabled.
+    # This can be useful, for example, to show CRD resources.
+    clusterReadOnlyRoleAdditionalRules: []

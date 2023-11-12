@@ -1,0 +1,59 @@
+keycloak:
+  global:
+    storageClass: "topolvm-provisioner"
+
+  clusterDomain: "k8s.sh1.exchange.neor.space"
+
+  production: true
+
+  image:
+    registry: registry.arico-b2b.com
+    repository: cache/bitnami/keycloak
+
+  auth:
+    adminUser: admin
+    adminPassword: sSZjJeQ72CsPm8MnPCI59r8cf51KVyQp
+
+  # Set ssl termination on ingress
+  proxy: edge
+
+  resources:
+    requests:
+      cpu: 1000m
+      memory: 512Mi
+    limits:
+      cpu: 2000m
+      memory: 2048Mi
+
+  ingress:
+    enabled: true
+    ingressClassName: "kong"
+    hostname: sso.exchange.neor.space
+    extraTls:
+    - hosts:
+      - sso.exchange.neor.space
+      secretName: sso-tls
+
+  postgresql:
+    enabled: false
+
+  externalDatabase:
+    host: keycloak-postgresql-hl
+    port: 5432
+    database: bitnami_keycloak
+    user: bn_keycloak
+    password: 1GyWiaydj9LDEnBcrdDkyKvfZexAgbkK8y
+
+postgresql:
+  global:
+    imageRegistry: registry.arico-b2b.com/cache
+    storageClass: "topolvm-provisioner"
+
+  clusterDomain: "k8s.sh1.exchange.neor.space"
+
+  auth:
+    postgresPassword: UhP107$D^lp3MqKR!GKziY
+    username: bn_keycloak
+    password: 1GyWiaydj9LDEnBcrdDkyKvfZexAgbkK8y
+    database: bitnami_keycloak
+

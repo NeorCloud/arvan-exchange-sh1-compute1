@@ -1,0 +1,12 @@
+apiVersion: v2
+name: "harbor"
+description: "An umbrella chart for the harbor application"
+type: application
+version: 0.1.0
+dependencies:
+  - name: harbor
+    version: 1.13.0
+    repository: "https://helm.goharbor.io"
+  - name: postgresql
+    repository: oci://registry-1.docker.io/bitnamicharts
+    version: 13.x.x
