@@ -4,11 +4,13 @@ harbor:
       enabled: true
       certSource: secret
       secret:
-        secretName: bama-cert-2023
+        secretName: harbor-tls
     ingress:
       hosts:
         core: registry.sh1.exchange.neor.space
-      annotations: {}
+      annotations:
+        konghq.com/protocols: https
+        cert-manager.io/cluster-issuer: letsencrypt-prd
   externalURL: https://registry.sh1.exchange.neor.space
   persistence:
     enabled: true
