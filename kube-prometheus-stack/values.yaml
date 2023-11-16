@@ -508,7 +508,7 @@ kube-prometheus-stack:
     serviceMonitor:
       enabled: true
       
-      scheme: https
+      scheme: http
       insecureSkipVerify: false
       serverName: "localhost"
       caFile: /etc/prometheus/secrets/etcd-client-cert/ca.crt
