@@ -21,3 +21,9 @@ spec:
     - Validate=false
     - Prune=true
     - SelfHeal=true
+  ignoreDifferences:
+  - group: cert-manager.io
+    kind: Certificate
+    jsonPointers:
+    - /spec/duration
+    - /spec/renewBefore
