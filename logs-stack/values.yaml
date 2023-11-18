@@ -157,7 +157,7 @@ eck-stack:
       subjects:
       - kind: ServiceAccount
         name: logs-stack-filebeat
-        namespace: default
+        namespace: logs-stack
       roleRef:
         kind: ClusterRole
         name: logs-stack-filebeat-autodiscover
