@@ -16,7 +16,7 @@ eck-stack:
   eck-kibana:
     nameOverride: kibana
     elasticsearchRef:
-      name: logs-stack-elasticsearch
+      name: elasticsearch
     annotations:
       eck.k8s.elastic.co/license: basic
     spec:
@@ -68,7 +68,7 @@ eck-stack:
     spec:
       type: filebeat
       elasticsearchRef:
-        name: logs-stack-elasticsearch
+        name: elasticsearch
       kibanaRef:
         name: logs-stack-kibana
       config:
