@@ -1,0 +1,165 @@
+kibanaIngress:
+  enabled: true
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prd
+  host: logs.exchange.neor.space
+  tlsSecretName: kibana-sh1-neor-tls
+
+elasticsearchIngress:
+  enabled: true
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prd
+  host: logs-es.exchange.neor.space
+  tlsSecretName: es-sh1-neor-tls
+
+eck-stack:
+  eck-kibana:
+    nameOverride: kibana
+    elasticsearchRef:
+      name: logs-stack-elasticsearch
+    annotations:
+      eck.k8s.elastic.co/license: basic
+    spec:
+      http:
+        tls:
+          selfSignedCertificate:
+            disabled: true
+
+  eck-elasticsearch:
+    nameOverride: elasticsearch
+    annotations:
+      eck.k8s.elastic.co/license: basic
+    http:
+      tls:
+        selfSignedCertificate:
+          disabled: true
+    nodeSets:
+    - name: default
+      count: 2
+      config:
+        node.store.allow_mmap: false
+      volumeClaimTemplates:
+      - metadata:
+          name: elasticsearch-data # Do not change this name unless you set up a volume mount for the data path.
+        spec:
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: 10Gi
+          storageClassName: topolvm-provisioner
+      podTemplate:
+        spec:
+          containers:
+          - name: elasticsearch
+            resources:
+              limits:
+                cpu: 1000m
+                memory: 2Gi
+              requests:
+                cpu: 500m
+                memory: 2Gi
+
+  eck-beats:
+    enabled: true
+    fullNameOverride: sh1-compute1-filebeat
+    annotations:
+      eck.k8s.elastic.co/license: basic
+    spec:
+      type: filebeat
+      elasticSearchRef:
+        name: logs-stack-elasticsearch
+      kibanaRef:
+        name: logs-stack-kibana
+      config:
+        filebeat:
+          autodiscover:
+            providers:
+            - node: ${NODE_NAME}
+              type: kubernetes
+              hints:
+                enabled: true
+                default_config:
+                  type: container
+                  paths:
+                  - /var/log/containers/*${data.kubernetes.container.id}.log
+      daemonSet:
+        podTemplate:
+          spec:
+            serviceAccount: logs-stack-filebeat
+            automountServiceAccountToken: true
+            terminationGracePeriodSeconds: 30
+            dnsPolicy: ClusterFirstWithHostNet
+            hostNetwork: true # Allows to provide richer host metadata
+            priorityClassName: system-node-critical
+            containers:
+            - name: filebeat
+              resources:
+                limits:
+                  memory: 1Gi
+                  cpu: 1
+              securityContext:
+                runAsUser: 0
+              volumeMounts:
+              - name: varlogcontainers
+                mountPath: /var/log/containers
+              - name: varlogpods
+                mountPath: /var/log/pods
+              - name: varlibdockercontainers
+                mountPath: /var/lib/docker/containers
+              env:
+                - name: NODE_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: spec.nodeName
+            volumes:
+            - name: varlogcontainers
+              hostPath:
+                path: /var/log/containers
+            - name: varlogpods
+              hostPath:
+                path: /var/log/pods
+            - name: varlibdockercontainers
+              hostPath:
+                path: /var/lib/docker/containers
+    serviceAccount:
+      name: logs-stack-filebeat  
+    clusterRole:
+      name: logs-stack-filebeat-autodiscover
+      rules:
+      - apiGroups:
+        - ""
+        resources:
+        - nodes
+        - namespaces
+        - events
+        - pods
+        verbs:
+        - get
+        - list
+        - watch
+      - apiGroups: ["apps"]
+        resources:
+        - replicasets
+        verbs:
+        - get
+        - list
+        - watch
+      - apiGroups: ["batch"]
+        resources:
+        - jobs
+        verbs:
+        - get
+        - list
+        - watch
+    clusterRoleBinding:
+      name: logs-stack-filebeat-autodiscover-binding
+      subjects:
+      - kind: ServiceAccount
+        name: logs-stack-filebeat
+        namespace: default
+      roleRef:
+        kind: ClusterRole
+        name: logs-stack-filebeat-autodiscover
+        apiGroup: rbac.authorization.k8s.io
+      
