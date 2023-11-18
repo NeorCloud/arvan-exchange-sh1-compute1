@@ -2,7 +2,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: eck-stack-kibana
+  name: {{ .Release.name }}-kibana
   annotations:
     {{ if .Values.kibanaIngress.annotations }}
     {{ toYaml .Values.kibanaIngress.annotations | nindent 4 }}
@@ -16,7 +16,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ .Release.Name }}-eck-kibana-kb-http
+                name: {{ .Release.Name }}-kibana-kb-http
                 port:
                   number: 5601
   tls:
@@ -29,7 +29,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: eck-stack-es
+  name: {{ .Release.name }}-es
   annotations:
     {{ if .Values.elasticsearchIngress.annotations }}
     {{ toYaml .Values.elasticsearchIngress.annotations | nindent 4 }}
