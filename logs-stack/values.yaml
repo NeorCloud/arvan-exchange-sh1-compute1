@@ -72,6 +72,9 @@ eck-stack:
       kibanaRef:
         name: logs-stack-kibana
       config:
+        processors:
+        - add_host_metadata: {}
+        - add_cloud_metadata: {}
         filebeat:
           autodiscover:
             providers:
