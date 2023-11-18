@@ -67,7 +67,7 @@ eck-stack:
       eck.k8s.elastic.co/license: basic
     spec:
       type: filebeat
-      elasticSearchRef:
+      elasticsearchRef:
         name: logs-stack-elasticsearch
       kibanaRef:
         name: logs-stack-kibana
