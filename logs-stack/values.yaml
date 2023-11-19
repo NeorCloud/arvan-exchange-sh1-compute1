@@ -99,8 +99,11 @@ eck-stack:
             - name: filebeat
               resources:
                 limits:
-                  memory: 1Gi
-                  cpu: 1
+                  memory: 500Mi
+                  cpu: 500m
+                requests:
+                  memory: 100Mi
+                  cpu: 100m
               securityContext:
                 runAsUser: 0
               volumeMounts:
