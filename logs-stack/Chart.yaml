@@ -1,6 +1,6 @@
 apiVersion: v2
-name: eck-stack
-description: Elasticsearch Operator
+name: logs-stack
+description: Logs Stack
 version: 0.1.0
 type: application
 dependencies:
